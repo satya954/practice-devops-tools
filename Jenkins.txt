@@ -69,8 +69,9 @@ CHoose the respective options.
 
 Note:
 ----
-Even, at the time of adding the Slave server, the node is failed, we can add it by using the option "Launch Agent"
-========================================================================
+If the slave node is failed at the time of Adding, We can do it by using the option "Launch Agent" by clicking on that slave server.
+=====================================================================================================================================
+
 Tools Integration:
 ------------------
 Manage Jenkins > Tools > 
