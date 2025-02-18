@@ -1,0 +1,325 @@
+apt install jenkins
+
+Updated the Admin username and Password via UI.
+	admin/Admin@123		// Now integrated with 192.168.1.17 LDAP
+	
+	http://192.168.1.50:8080
+	
+After installation,
+
+	Manage Jenkins > plugins >			> Install
+
+	Pipeline Stage view	
+	SSH Server
+	Maven Integration
+	Role-Based Authorization strategy
+	Subversion
+	NodeJS 
+	Blue ocean
+	Thin Backup
+	Build Name setter
+	Sonarqube scanner
+	Java configuration history
+	Deploy to container
+	Next Build Number
+	Safe Restart
+	Audit Trail
+	Audit log
+	Build Timestamp
+	Groovy
+	Groovy Pre script
+	Active choices
+	JDK
+
+========================================================================
+Change Timezone:
+----------------
+Click on Admin User > Drop down list > Select "Account" > Timezone > IST
+
+Manage Jenkins > System > Build Timestamp > Asia/Kolkata
+
+========================================================================
+Add a Slave node:
+-----------------
+	mkdir -p /var/lib/jenkins/.ssh
+	ssh-keyscan -H 192.168.1.177 >> /var/lib/jenkins/.ssh/known_hosts
+	
+	chown -R jenkins:jenkins /var/lib/jenkins/
+	chmod 644 /var/lib/jenkins/.ssh/known_hosts
+
+	systemctl restart jenkins
+
+
+	Prior adding the slave node:
+	
+	1. Create a directory in the slave server
+	2. Install java version of respective supported
+
+Nodes > Add node
+slave1
+No. of executors: 4
+Remote root directory: /home/developer/jenkins-slave1		[ This should be created prior adding the node ]
+Labels:	slave, slave1
+Usage:
+Launch: by SSH
+	Credentails
+CHoose the respective options.
+
+	Save
+
+Note:
+----
+Even, at the time of adding the Slave server, the node is failed, we can add it by using the option "Launch Agent"
+========================================================================
+Tools Integration:
+------------------
+Manage Jenkins > Tools > 
+	Maven settings.xml file:	
+	
+	Maven	> Install automatically	> Maven3.9.9
+	NodeJS	> Install automatically	> nodejs18	-> version: 18.0.
+									  nodejs20	-> version: 20.18.3
+
+========================================================================
+Create a Maven Job.
+
+maven-snapshots > Description >
+	Project is parameterized > choice parameter  > BRANCH_NAME	> facebook,whatspp,main	> add
+	SCM	> Git >	https://github.com/satya954/2025-mithun-tech-classes.git	> Credentials
+	Branches to build	> 	*/{BRANCH_NAME}
+	
+	Environment:
+		Delete workspace before build starts
+		Add timestamps to the console output
+		set Build Name:	Mvn-Snapshot-#${BUILD_NUMBER}
+		
+	Build:
+		Goals:	clean deploy
+
+	
+
+
+========================================================================
+Created a Pipeline project with name "Scripted-PIPELINE"
+========================================================================
+
+scripted-pipeline config:
+--------------------------
+
+node {
+    
+    try {
+        buildName 'scripted-pipeline-#${BUILD_NUMBER}'
+        def gitUrl = 'https://github.com/satya954/2025-mithun-tech-classes.git'
+        def mvnHome = tool name: 'Maven3.9.9', type: 'maven'
+        
+        stage('deletWorkspaceDir'){
+            echo 'Deleting the workspace directory'
+            deleteDir()
+        }
+        stage('Checkout Code') {
+            echo 'Checking out code from Git...'
+            checkout([$class: 'GitSCM',
+                      branches: [[name: "*/${BRANCH_NAME}"]],
+                      userRemoteConfigs: [[credentialsId: 'github', url: gitUrl]]
+            ])
+        }
+        stage('Build') {
+            echo 'Building the project...'
+            sh "${mvnHome}/bin/mvn clean install -s /opt/apache-maven-3.9.9/conf/settings.xml"
+        }
+        stage('Test') {
+            echo 'Running tests...'
+            sh "${mvnHome}/bin/mvn sonar:sonar -s /opt/apache-maven-3.9.9/conf/settings.xml"
+        }
+        stage('Deploy'){
+            echo "Uploading the code to Nexus"
+            sh "${mvnHome}/bin/mvn deploy -s /opt/apache-maven-3.9.9/conf/settings.xml"
+        }
+
+    } 
+    catch (e) {
+        echo "An error occurred: ${e}"
+        currentBuild.result = 'FAILURE'
+    }
+}
+
+To run only on specific node:
+----------------------------
+node('masternode') {
+
+}
+
+========================================================================
+				DECLARATIVE PIPELINE
+========================================================================
+Declarative pipeline config:
+---------------------------
+pipeline {
+    agent any			
+    tools {
+        maven "Maven3.9.9"
+    }
+    stages {
+        stage('Hello') {
+            steps {
+                echo 'Hello World'
+            }
+        }
+        stage('DeleteWorkingDir'){
+            steps{
+                echo "Deleting the workspace directory"
+                deleteDir()
+            }
+        }
+        stage('codeCheckOut'){
+            steps {
+                script {
+                    checkout scmGit(branches: [[name: '*/${BRANCH_NAME}']], extensions: [], userRemoteConfigs: [[credentialsId: 'github', url: 'https://github.com/satya954/2025-mithun-tech-classes.git']])
+                }
+                script {
+                    currentBuild.displayName = "decla-pipeline-#${env.BUILD_NUMBER}"
+                }
+            } 
+        }
+        stage('Build'){
+            steps{
+                echo "Building the Project"
+                sh "mvn clean deploy -s /opt/apache-maven-3.9.9/conf/settings.xml"
+            }
+        }
+    }
+}
+
+To run only on specific node:
+----------------------------
+agent { 
+        label 'masternode' 
+    }
+
+
+========================================================================
+Executors count change:
+-----------------------
+Manage Jenkins > System > Executors 
+
+Extended Email Notification:
+---------------------------
+automatedmailer@medplusindia.com
+Med@1234
+smtp.cloudzimail.com:587
+tls NO
+
+
+Click on Manage Jenkins > Safe Restart.
+
+	Banner Text: JENKINS IS RESTARTING NOW, PLEASE WAIT A MOMENT. ADMIN TEAM
+
+
+Log file configuration:
+-----------------------
+Manage Jenkins > System > Audit Trail > loggers > Add > Log file.
+
+	log file location: /var/log/jenkins/jenkins.log
+	File size: 10MB
+	Count: 5
+
+Backup Configuration:
+--------------------
+sudo mkdir -p /var/lib/jenkins/backups
+sudo chown -R jenkins:jenkins /var/lib/jenkins/backups
+
+	Configuration:
+	--------------
+Manage Jenkins > System  > Thin Backup
+
+	Directory: /var/lib/jenkins/backups
+	Backup Next Build number
+	Backup plugin archives
+	Move old backups to Zip files
+
+To Take a backup, you must restart the Jenkins server once.
+	
+	Manage Jenkins > Thin Backup > Backup now
+
+
+LDAP Configuration:
+-------------------
+Manage Jenkins > Security > Security Realm > Select "LDAP"
+
+ldap://192.168.1.17:389
+
+root DN:	dc=medplusindia,dc=com
+People:		ou=People
+filter:		cn={0}
+Group:
+filter:
+search for:
+manager DN:	cn=root,dc=medplusindia,dc=com
+password:	sairam
+
+Save it.
+
+
+Authorization to the Jenkins Server:
+====================================
+Manage Jenkins > Security > Authorization > Matrix based Security
+
+Add Groups
+
+admin
+developer
+seniordeveloper
+
+
+Restoration:
+============
+sudo apt install openjdk-17-jre-headless
+
+sudo wget -O /usr/share/keyrings/jenkins-keyring.asc https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
+
+sudo sh -c 'echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] https://pkg.jenkins.io/debian binary/ > /etc/apt/sources.list.d/jenkins.list'
+
+sudo apt update
+
+sudo apt install jenkins
+
+sudo systemctl status jenkins.service
+
+	#Setup the admin configuration
+
+#Install thin backup plugin
+
+	admin/123123
+
+#Manage Jenkins > System > Backups folder configuration
+
+#Now copy the zip file from the BACKUP in other server to the specified path.
+#Change the username & group permissions
+
+Manage Jenkins > Restore > (Now you are able to see the Timings of backup available )
+
+On Restoration, you need to restart the Jenkins server.
+
+	Before that, change the URL configuration in the file: /var/lib/jenkins/jenkins.model.JenkinsLocationConfiguration.xml
+
+#If there any slave servers configured previously for the BACKUPED server, then
+
+	#With root user
+	mkdir -p /var/lib/jenkins/.ssh
+	ssh-keyscan -H <slave-server-ip> >> /var/lib/jenkins/.ssh/known_hosts
+	
+	sudo chown -R jenkins:jenkins /var/lib/jenkins/.ssh
+
+#Configure / place the Maven settings.xml file in the respected file path.
+
+	#Here, I am using the file path as "/opt/apache-maven-3.9.9/conf/settings.xml"
+	
+	sudo mkdir -p /opt/apache-maven-3.9.9/conf
+	sudo scp developer@192.168.1.50:/opt/apache-maven-3.9.9/conf/settings.xml /opt/apache-maven-3.9.9/conf/settings.xml
+	
+	sudo chown -R developer:developer /opt/apache-maven-3.9.9
+
+#Restarting the Jenkins service
+	sudo systemctl restart jenkins.service
+
