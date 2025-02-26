@@ -1,0 +1,183 @@
+Apache Maven / Tomcat		=>	Developed using Java	=>	Supports only Java Programming languages.
+SonarQube / Nexus / Jenkins	=>	Developed using Java	=>	Supports Multiple Programming languages.
+
+															SONARQUBE:
+															==========
+SonarQube is a Software Quality management Tool.
+
+It is an open source.
+
+It will validate the standard's of code but not the logical thinking in that and generate the report if any issues arise in a html/PDF format.
+
+H2	=>	In built database used in SonarQube.
+
+It is used to validate the code against:
+
+.	Duplicated code
+.	Coding Standards
+.	Unit tests
+.	Complex code
+.	Comments
+.	Potential bugs
+.	Architecture & Design
+
+
+		Source Code	--------------- SonarQube Scanner 	----------------	SonarQube Server	------------	Database
+
+		Java code	--------	Scans the code ------- Inside Server, there is Compute engine --------- Results into Database [ Default is H2 DB ]				
+									or					 & Webserver [ this will used to show the report
+							  Analyze the code		   to us from DB ] & Elastic Search Engine
+															 
+
+Results are categorized into 3 types.
+
+1. Vunelaribilties
+2. Bugs
+3. Code Smells
+
+Installation:
+=============
+Download the sonarqube zip file and extract it.
+
+Sonarqube should not run with the Root User , for this use some non-root user.
+
+Create an User and give Sudo access.
+
+cd /opt/sonarqube-7.8/bin/linux-x86-64/
+./sonar.sh start
+	or
+sh sonar.sh start
+
+					http://localhost:9000
+					
+Default Credentials:	admin/admin
+
+After Login > Administration > Security > Force User Authentication Enabled.
+
+																VIDEO NO:1 - COMPLETED
+																=======================
+With the Root user, the SONAR server wont start, the reason is: Inside the sonar, there is Elastic search engine, it should not start with the ROOT user.
+
+Execute the SonarQube analysis on your Java project.
+
+1. Copy the SonarQube url.
+2. Place it in the pom.xml of your Java Project
+	under <properties> tag
+	URL
+	Login username
+	Login password
+
+*********** Instead of using the username & password in the pom.xml, it is a best practice to use the token.
+
+		Administrator > My Account > Security > Generate Token 
+		Administration > Security > Users > Tokens > Barcode Icon (Update Tokens) > New Token Creation .
+		
+			Copy the Token as soon as you create the Token
+
+*************************** Command to Generate the Sonar Report for a Java project *****************
+			
+						<plugin-name>:<GOal Name>
+								mvn sonar:sonar
+
+		Now check the Dashboard in the SonarQube.
+
+Projects > ON what projects the SonarQube is running / analyzing
+Issues	>	Vulnerabilites, Code Smells, Bugs etc..
+Rules	>	By default, sonarqube will define certain rules against each language (Java, Python, C#, etc..)
+Quality Profiles:	Collections of rules which we apply on our code.
+				Example: By default, Java language has 537 rules ( in that version), but we need to apply only few rules (let's say about to 50), 
+	
+		As a DevOps engineer, we are responsible to create a Quality Profile which will have only few rules to analyze our code.
+		
+		Login as Root User > Quality Profile > Create > Name > Language > Create.
+			
+		Now click on "Activate More" > select the rules which we want to activate > Done.
+		
+	If we want to change the Default Profile to Analyze, you can select it.
+
+	If we want to make the newly created Quality profile as the Default one for our Java project (only for this Project), then
+		
+			Select the Project name > Administration > Quality profile > Java > Select newly created Profile > save.
+
+	Now again run the sonar test.
+			
+				mvn sonar:sonar
+
+Q:	On What Basis, the project test will be known as Passed or Failed ?
+A:	Based on the Quality gates
+
+	Creation of new Quality Gate .
+	Quality Gate > Create > Name it as "testing-qg" > Add condition > Coverage > 80%
+
+
+	Once done, we can add this Quality gate as the default one [ By default, it will picks the SonarWay ]
+	
+			Select the Project name > Administration > Quality Gates > Select "testing-qg"
+
+	Now test the Project again
+	
+
+Q: Creation of new users 
+A:	Administration > Users > Create new user
+		Add the user into sonar-administrators Group, it make it as an Admin user.
+
+
+Q: Can we create n no. of tokens for a single user ?
+A:	Yes
+
+
+		In the Youtube Channel, they have a video of 
+		
+		"How to Integrate SonarQube server with the Postgres SQL instead of Default H2 Database"
+
+
+###################### Executing SONAR on NodeJS Projects #######################
+For this, you have to install nodejs & npm.
+
+Clone the Github URL, of NodeJs Project
+
+#Change the Sonar Qube URL's
+
+		npm run sonar
+		node sonar-project.js
+
+
+											###########################################
+															PRACTICE
+											###########################################
+cd /opt
+sudo wget https://binaries.sonarsource.com/Distribution/sonarqube/sonarqube-25.2.0.102705.zip
+sudo unzip sonarqube-25.2.0.102705.zip
+cd /opt/sonarqube-25.2.0.102705/bin/linux-x86-64
+./sonar.sh start
+./sonar.sh status
+
+					http://192.168.1.50:9000
+					
+					Default:	admin/admin
+
+	Configure the java path, if not configured
+
+					Changed it to: 	admin/Admin@123456
+
+	Create a Token .
+	Administrator > My Account > Security > Generate token
+	
+				sqa_b583d073a02db9d21f9dd47081819cf72b8e45a5
+				
+	Now checkout the github project and edit the sonar settings in the pom.xml file.
+	
+			<sonar.token> Update this line
+			
+				mvn sonar:sonar
+
+	It will the build the Project on the SonarQube server.
+
+
+#Created a Sample Quality Profile [ Java Language -> Activated few rules ] and assigned as the default Quality Profile
+
+#Created a Sample Quality Gate with the conditions on-demand, and assigned this as the default Quality Gate.
+
+
+
+
