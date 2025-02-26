@@ -1,0 +1,459 @@
+								SOURCE CODE MANAGEMENT
+								=======================
+									GIT & GITHUB
+									=============
+Git hub Commands:
+==================
+
+cd ~/temp/mithun-tech/
+
+	git init		=>	Initialized local repo.	// It will create .git directory inside that directory.
+
+				// Create a file named abcd.sh
+				// Create a file named 123.txt
+
+
+	git status
+
+	git add .		// Will add all the files
+	git add *		// Will add all the files
+	git add *.txt
+	git add abcd.sh
+
+				// After adding the files to staging area, you can commit those whatever you required.
+
+	git commit -m "message here" <file-names-here>
+
+	git commit -m "If you dont specify any file name here, it will commit all the files in the staging area not in that directory files"
+	
+	git commit -m "Here we are specifying the filename,So it will commit only one file"  123.txt
+	
+
+				// Configuring the Git access
+
+	git config --global user.name satya
+	git config --global user.email satyarocks1996@gmail.com
+	
+				// Check what commands are available
+
+	git config --global --list
+	
+#########################################################################
+	
+			git remote add <alias-name>	<remote-git-url>
+
+	git remote add test-mithun https://github.com/satya954/2025-mithun-tech-classes.git
+
+			// When you execute above command, it will your make a connection b/w local-repo with the remote repository.
+
+	git remote -v
+
+	git push test-mithun master		//Here, master means git hub MASTER Branch
+
+		//When you executed above command, it will ask for your credentials, 
+		// Username: means User (it is not the email)
+		// Password: Now, password is not accepting instead we need to configure Access Token
+		
+		Login to Our github account > Setting > Developer Tools > Create new
+	
+		Copy the above token created with necessary permissions and paste it in the respective Password option.
+		
+Git Branches:
+------------
+	To Know the how many branches are exist in the Repo, you can use the below command.
+	
+			git branch			// Returns the Master / Main branch, as there is only one default branch
+
+	Create a Branch.		git branch <branch-name>
+	
+			git branch development
+
+	Delete a Branch			git branch -d <branch-name>
+
+			git branch -d <branch-name>
+
+	Rename the Branch name.
+			
+			git branch -m <renamed-branch-name>		// It will change the current branch name to new Branch name i.e; master to some other
+
+			git branch -m <development> <new-development>	// When you want to change other branch names (from outside of it)
+
+Switch Branch:
+--------------	
+			git checkout development		[ From master to development ]
+			
+			git branch		// Check the current branch
+
+Diff:
+----
+	To Know the differences, 
+	
+			git diff development			[ You need to be in Master branch ]
+
+			git diff staging development	[ Compare diff b/w staging & Development branches ]
+
+Merge:
+-----
+	Before merging the code, First you need to move to the Branch that we need to commit into. Eg: PreProduction Branch
+	
+			cd Master >
+	
+			git merge <Branch-name>			Eg: git merge Sprint189
+
+	When you face the merge conflicts, on any file, Open the file in any Editor and remove the branch names and respective code and then save it. Done.
+
+Branch Creation & Switching Branch:
+-----------------------------------
+			git checkout -b staging
+			
+
+Pushing Branches:
+-----------------
+	You are creating branches in your local, that doesn't any effect on your Repository. There will be only one Main branch.
+	
+	If you want the same branches to be existed on the Repo, you should push the branches also.
+	
+			git push fb <branchname>
+			git push fb <branchname1> <branchname2> <branchname3>
+			git push fb --all
+
+Information about branches:
+---------------------------
+			git branch -a		// Displays all the branch names in that repo.
+			
+			git branch -r		// Displays all the branch names in the remote repository.
+
+Deleting Branch:
+----------------
+			git branch -d <branchname>		//Deletes the branch
+
+			git push test-mithun :development		// Deletes the branch name called "development"
+
+Git Ignore:
+-----------
+		We can use the option of ignorng files by mentioning them in the .gitignore file.
+		
+
+Branch vs Tag:
+=============
+Branch					Tag
+------					----
+Mutable					Immutable
+Development				After Production Deployment
+						will create from Master branch  
+						
+
+git branch <bname>			git tag <tagname>
+
+git push fb <b-name>		git push fb tag <tagname>
+
+git push fb --all			git tag fb --tags
+
+git branch -d <bname>		git tag -d 	<tagname>
+
+Note:
+-----
+** In Git UI, there is no option to delete the Tag.
+** Is there any option to create a Tag on the specific commit no. ?
+
+
+Git Stash:
+----------
+Git stash is used to take a backup of your working area and save it in some temporary location.
+	i.e; It makes the work halts in any specific branch (you are working on, when you files pending to commit) you can resume once your work is done in anonther.
+
+			git stash			// git stash save "Comment here"
+			
+			git stash list		[ When you have multiple backups, to list them ]
+				stash@{0}		[ It will o/p like this ]
+				stash@{1}
+				stash@{2}
+				stash@{3}
+			
+After taking the backup, you can switch to any other branch in your working area and do your activity.
+
+To resume from your previous halted phase, you can use below command.
+
+			git stash apply		[It will apply the recent / last one ]
+			
+			git stash apply stash@{3}		[ Apply specific one ]
+	
+			git stash drop						// To delete the backup stash which is latest / recent
+			git stash drop stash@{2}			// To delete the backup stash specific one
+
+			git stash pop				// With this command, it will apply and delete the stash backup
+			git stash pop stash@{3}		// With this command, it will apply and delete the stash backup of the specified one
+ 
+
+Git Cherry-Pick:
+================
+	When you want to merge the specific code (which is a commit in one branch assume Sprint189 Branch) to PreProduction or any other, using the commit id,
+We can merge that specific commit id to any branch.
+
+		1. Assume you are in Sprint189 Branch
+		2. git log (returns the commit id's and other details )
+		3. Switch to "Main" Branch
+				git checkout main			//Switching to Main Branch
+		4. git cherry-pick <commit-id>
+
+
+Existing Branch Checkout / Clone:
+=================================
+cd ~/Desktop/temp/
+
+git clone https://github.com/satya954/whatspp.git				//Checkout the code from that branch
+
+cd whatspp
+
+git status
+
+git remote -v
+
+git pull (or) git fetch	command										// Checkout the latest code from the repo
+
+
+			git pull = git fetch + git merge
+	
+1. Method I
+git fetch origin master
+git merge origin/master
+	
+	or 
+
+git pull origin master			// It will fetch entire code from the remote repository to your local machine.
+							// Whenever you have code in your local machine, always try to use fetch command and then merge it.
+
+	Once your changes are merge along with the updated repo code and neccessary changes are done in the local machine, you can commit them with the command
+
+			git push origin master
+
+SSH KEY:
+========
+ssh-keygen			//Create a ssh key		// Default RSA algo.
+
+		ssh-keygen -t dsa		// T means Type of Algo.
+
+This is use to enable the SSH Connection to the Remote repository.
+
+Go to Accounts > repo > Settings > SSH and GPG keys > "Paste the key generated in your local machine"
+
+// Check the authentication to the Github repository.
+
+			ssh -T git@github.com
+
+Once you enable the ssh type in the GitHub, copy and add then alias name in the machine.
+
+			git remote add ssh-alias-name <SSH-URL-HERE>
+
+			git remote -v			// Check the alias names and connections
+			
+Once you enabled the SSH connection , then you can able to commit the code using ssh alias name like below
+
+			git push ssh-alias-name master			// Previously, git push origin master
+
+
+GITHUB API:
+===========
+After creating the Personal access token in the Github UI, We can authenticate our curl api requests using those tokens.
+
+		curl -X Post -u <username:<token> https://URL-HERE			// Check your details, by entering the URL 
+		
+	We can get the above url from the Github docs API Token section.
+	
+Using these API's, We can 
+. Create a Public repo
+. Create a Private repo
+and etc..
+
+Try the above section in a script file method, 
+Exists at Git video no: 4 . Time: 1.10.00
+
+								COMPLETED VIDEO : 4
+
+								VIDEO NO: 5:
+								============
+PULL REQUEST (PR):
+==================
+If you want to integrate the code from one BRanch to anonther Branch, then we will create a Pull Request.
+		Developer will create Pull Request (PR).
+		Lead will review the code as you have to mention the names of them in the Reviewers section.
+		
+	It's like merging from Sprint188 to Sprint189 Branch only few commits. (Instead of PreProduction )
+	
+	Once the Pull Request is created, Lead will verify it, reviewed and then merge the code.
+	
+If the code is in Local repo to Remote repo, we will merge our code.
+But if the code is in One Branch and we have to Merge into anonther, then we will create this Pull Request.
+
+
+FORK:
+======
+When we want to create an identical repository from the master then we will use this fork.
+		Duplicating the Repository
+
+		It's like creating a new branch (lets say DEV1) from PreProduction and will work on DEV1
+
+
+Branching Strategy:
+===================
+Creation of branches.
+	Why ?
+	How to integrate with Prod ?
+	
+Git Rebase:
+===========
+Diff b/w Rebase vs Merge ?.
+
+In Git merge, All the commits made in (Sprint Branch) Devlopement branch are merged to Master / Main Branch as a single commit.
+But using git Rebase, we will merge the code into Master / Main branch from the Development (Sprint Branch) as they made in the Dev Branch.
+		There will be all Commit ID's.
+		
+		Easy to Track who commits what, when and which files ?
+		
+ReadMe file:
+------------
+Always make some proper description & Details about your project in this.
+Who ?	Author 
+Why ?	What is the use 
+How ? 	Usage
+Any Pre-requisites ? etc..
+
+Git Best Practices:
+===================
+Use Branching strategy & PR.
+Commit once you done your work.
+Dont commit half-cooked code.
+Avoid git merges.
+Proper message for commit's.
+
+
+Update the commited message:
+===========================
+	git commit --amend -m "updating the previous commit message"
+
+	Only change the most recent commit message.
+	
+
+
+
+Practice Commands:
+--------------------
+cd test-repo
+git clone https://github.com/satya954/2025-mithun-tech-classes.git
+cd 2025-mithun-tech-classes
+touch testingfile
+git add .
+
+git status 
+
+git commit -m "Adding the file to the git repo"
+
+git push https://github.com/satya954/2025-mithun-tech-classes
+
+
+		Anonther way to commit
+		----------------------
+	git remote add sp1 https://github.com/satya954/2025-mithun-tech-classes
+	git push add main (or) git push add master
+
+
+
+
+
+
+1. What is Git Flow?
+	Means how you will commit in the Local repo and how you will commit it to the remote repository.
+
+	git init	// Initialize with empty code
+				// Now Create or develop some code
+	git status  // Check the Status
+	
+	git add		// Verify the code abd then
+	
+	git commit		// Commit in the Local repository
+	
+	git remote add 	//Remote URL
+	
+	git push		// Push to the Remote repo.
+		
+		
+2. Difference b/w Git & Git Hub ?
+	Git is a Version Control System (VCS). Using it, we can develop the code and maintain the versioning there.
+	Where as GitHub is a Hosting service along with that it provides a GUI.
+	
+	( Github is a Hosting Service for Git )
+	Github, GitLab & BitBucket - All are the same and we can use git on all the three Hosting services.
+	
+	SVN client + SVN	
+	Git	+ GitHub
+	Git + GitLab
+	Git + BitBucket
+	Git + Azure Repos
+	
+3. Difference b/w Git & SVN ?
+
+	Git is a Distributed Version Control System. [ D-VCS]
+	Subversion is a Version Control System.
+	
+	In git, each developer will have their own local repo and they work seamlessly where in SVN all the developers will work on Central Version System.
+	
+	SVN Checkin		== 	Git push
+	SVN Checkout	==	Git Pull / Git fetch 
+	
+4. How to know about commits happened in the repository ?
+			
+			git log
+			
+		It will display commit id, HEAD ( a Pointer where our local repo is pointing to Current Branch Name ), Person name and time.
+	
+				git log -2 	[ Display last 2 commits of the log ]
+			
+				git log --oneline	[ Instead of All detailed details ]
+
+5. How many files are commited in a single commit ?
+
+		git show <commit-id>		// It shows the full details of that commit
+
+		git show --pretty="" --name-only <commit-id>		//To get only file names.
+
+6. To delete the files in the Local Working area (before commiting it in the Local Repo)
+
+		git clean -n 	[ it will displays the files that are gng to be deleted ]
+		
+		git clean -f 	[ Will remove the files shown for above command ]
+		
+		git clean <filename1> <filename2>
+
+		git status		[ It says the Working tree clean ]
+	
+7. Once adding the Working area files to the Local Repo [ Not yet commited ]
+
+		git status [ Displays the files that are added by using the add command ]
+		
+		git reset 	[ Reverts the adding of those files from the Local repo to Working area ]
+		
+		git reset <filename1>
+	
+8. Diff in commiting the files for new files & Existing files into Local repo.
+
+		git commit -m "This commit is for adding new files into Repo" <filename1> <filename2>
+	
+		git commit -a -m "This commit will update the changes in existing file using option -a" <efilename1>
+		
+9. How to revert the commit's that are pushed to the Git Master branch
+
+			Using git push fb master [ It will push all the files & existing file updates to the Remote Master Branch ]
+		
+		git revert <commit-id>
+
+			Using this command, it will delete Addition of new files, but it doesnt change the modifications made in the existing file in repo
+			To avoid that issue, we need to again push the code.
+			This can be possible only for the recent Commit ID not for the previous one's
+			
+		git push fb master -f	[Forcefully]
+
+10. When we need to use git pull & git fetch ?
+
+
+
+

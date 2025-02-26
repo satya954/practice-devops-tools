@@ -1,0 +1,99 @@
+Terraform 1,2,3 - Youtube videos must - Mithuntechnologies
+
+Jenkins & Kubernetes Integration [ DevOps pro ]
+
+Terraform - Creating AWS infra dynamically.
+
+
+
+										Monitoring Tools:
+										================
+Application Monitoring tool							
+---------------------------							
+Nagios												
+Prometheus [ & Grafana -Data visualization ]		
+AppDynamics											
+DataDog
+Zabbix
+NewRelic
+
+			Application monitoring tools will monitor both the application as well as Infrastructures.
+
+Log monitoring tools
+--------------------
+Splunk
+ELK Stack	[ Elastic search, LogStash, Kibana ]
+Logentries										
+
+
+											NewRelic:
+											========
+Software As A Service	=>	SAAS 
+We no need to install the tool / service.
+
+First started in 2008.
+	APM -	Application Performance monitoring.
+	
+Synthetics	:
+--------------
+	Monitoring the API's.
+
+##############################	
+Different types of Monitors:
+##############################
+1. Ping					-	Rest API
+2. Simple Browser		-	Application / Website
+3. Scripted Browser		-	Test the website with some script. [ Get some examples & see it through google - docs.newrelic.com  ]
+4. API test				-	Uses an http client to monitor remote API endpoints. ( REST / HealthCheck / etc ..)
+							Similiar to ping, but we can also Provide credentials here  where as in PING, we can't 
+
+I. Ping:
+========
+Select Ping
+
+Name: Employee service
+URL: <url-here>				// This is an API URL.
+Validation string: (optional) - no need
+Monitoring Locations:
+	Select any
+
+Check the interval:
+	1 min	[ Default will be 10 min ]
+	
+Create.
+
+			It will start , chekcking /monitoring the API you have specified in the URL context.
+			
+And you can see the stats / response of that URL in the Explorer Tab.
+
+Example: The response time will be seen in the chart from all the locations you have selected before.
+O/P:	The response time will be higher from the other regions except Mumbai ( where we have deployed our application ).
+
+		To get rid of the higher response time's, you can reduce it by:
+		1. Deploying the application in that specific region
+		2. Cache in edge locations
+
+Based on the region from where the request is coming, we will configure the routing request should go to that particular region deployed application.
+
+
+Alerts & AI:
+===========
+	For free accounts, this wont be supported.
+	Using these, you can able to integrate with the Slack and get notifications.
+	
+II. Simple Browser:
+===================
+	Monitor the website URL.
+	
+	Select Simple Browser
+	
+	Name: <any-name>
+	URL:  <enter the url>
+	Select the cities
+	Threshold Value
+	
+	Create
+
+
+
+NewRelic also monitors the Infrastructure including Hosts, Inventory, Events ,AWS, GCP, Kubernetes servers also.

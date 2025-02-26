@@ -1,0 +1,248 @@
+Check the URL / devops / MithunTechnologies.html
+
+Oracle Username & Password to download JDK files.
+
+Company Name: Mithun Software Solutions	[verified one ]
+				
+POM: 	Project Object Model
+	
+															MAVEN:
+															======
+							Maven is a popular Open Source JAVA based build tool.
+							Using these build tool, we will build the code as packages.
+							
+		Programming language		Supported build tools				
+		--------------------		---------------------					
+		Java based code			=>	ANT / Maven / Gradle
+		.Net					=>	Nant /MS Build
+		Python					=>	PyBuilder
+		Ruby					=>	Rake
+
+Why we need to use MAVEN instead of ANT or GRADLE ?
+
+ANT is a legacy tool.
+Gradel is a latest one, but compared to Maven it has less features
+
+Using this java, we can build the 
+
+1.	Standalone Applications
+			Only Java code				=>	Result Jar [ Java archive ]
+		
+		Jar contains	=>	.class files + manifest files
+		
+2.	Web Applications
+			Java code + web content ( HTML/CSS/JS/XML/images)
+										=>	War files [ Web Archive ]
+		War contains	=>	jar files + web content
+
+3.	Enterprise Applications
+			Multi-module applications	=>	Ear files	[ Enterprise archive ]
+
+		Ear contains	=>	war files + jar files + resource files
+
+
+
+Maven Directory Structure:
+===========================
+Maven is not an executable software.
+
+We will download the maven as .zip file		[ like activemq ]
+
+boot:
+bin:	binary files (mvn)
+conf:	settings.xml (imp)
+lib:	jar files
+
+Maven Installation:
+====================
+	Java is a Pre-requisite	(JDK)
+
+	mvn --version
+
+cd /opt/apache-maven-3.8.4
+
+export M2_HOME=/opt/apache-maven-3.8.4
+export PATH="$PATH:$M2_HOME/bin"
+
+												VIDEO NO: 2
+												-----------
+	
+
+Default file's to build for tools:
+==================================
+Maven	=>	pom.xml
+ANT		=>	build.xml
+GRADLE	=>	build.gradle
+
+Sample pom.xml file:
+====================
+<project>
+	<groupId></groupId>
+	<artifactId>optival<artifactId>
+	<version>0.0.1-SNAPSHOT</version>
+	<packaging>jar</packaging>
+
+	<dependencies>
+		<dependency>
+			<groupId>
+			<artifactId>
+			<version>
+			<packaging>
+		</dependency>
+	
+	</dependencies>
+</project>
+
+There are options like scope, compile, run , test	(like version, packaging ).
+
+For example: Go to Google > Maven Central Repository > search for log4j > Click any of it (most versions) > Copy the code there.
+
+
+<!-- https://mvnrepository.com/artifact/org.apache.logging.log4j/log4j-core -->
+<dependency>
+    <groupId>org.apache.logging.log4j</groupId>
+    <artifactId>log4j-core</artifactId>
+    <version>2.24.3</version>
+</dependency>
+
+Maven Repositories:
+====================
+
+	When you build a Maven project, all the dependencies files will be stored in your Maven Local Repo.
+
+a) Maven Local Repo
+	~/.m2/repository		=>	Default Repo for Maven local. [ We can change this using settings .xml file]
+	
+	/home/satya/.m2/repository
+	C:\\Users\satya\.m2\repository				[windows]
+	/Users/satya/.m2/repository					[MAC]
+	
+	
+b) Maven Central Repo
+	
+	When the Maven files not available in your Maven Local repo, then it comes into Maven Central Repo.
+
+c) Remote Repo.
+	
+	Enterprises usually maintain their own repositories for the libraries they are being used for their own project.
+	This is diff from Local repo / Developer' machine. It could be any server acessible within the organization level. [Eg: Nexus]
+
+	When the libraries not found in both the Local Repo & Central Repo, then it will find in the Remote Repo.
+
+Note: We can change the preference (Order) of these Repo's to download the libraries.
+		These changes can be placed in the settings.xml file
+
+
+Maven Life Cycle:
+=================
+LifeCycle:		Goals:
+---------		------
+Clean			Clean:	It will clean the previous build files
+site			Site:	It gives you the documentation for the source code. [ It is not using now, for this they are using SWAGGER ]
+default			validate:	It will validate the directory structure & files.
+				compile:	It will compile the source code.
+				test:		It will run the Junit test cases.
+				package:	It will build the source code into a specific extension of Jar / War/ ear
+				install:	It will store the build artifact / package in the Maven Local Repo.
+				deploy:		It will store the build artifact into the remote repo.
+
+If you choose the last one (goal), among the lifecycle it will bydefault executes the previous goals also.
+
+Eg: If you choose Package Goal, it will executes the validate, compile, test & package goals. 
+Eg: If you choose deploy Goal, it will executes the validate, compile, test, package, install & deploy goals. 
+
+mvn clean package		Then clean, Validate, compile, test, Package.
+
+
+Note: If any goal is failed in the middle, it will stops the other goals also. It won't executes the further.
+
+Q:	How to skip the goal ?
+A:	yes, We can do that with the below command.
+	
+	Example: 
+	Option1:	mvn clean package -DskipTests		[ Skipping the Test goal ]
+	Option2:	mvn clean package -Dmaven.test.skip=true	[ It will also skip the resources being copied to the maven target directory]
+
+													VIDEO NO: 3
+													-----------
+Java Project Building using MVN package command.
+
+Pre-requisites: Download & configure MVN in your system.
+Code: git clone https://github.com/MithunTechnologiesDevOps/maven-standalone-application.git
+
+cd maven-standalone-application
+	mvn clean package
+
+Result: target folder/<application>.jar file
+
+
+Now change the MVN Local repo to the custom Path. and then build the project.
+// Change these things in conf/settings.xml file and then build the project
+
+
+Q: If the file settings.xml exists in both the locations of MAVEN conf directory & Maven Local Repo (.m2 folder), which will it take ?
+A:	It will take .m2 folder (maven localrepo directory) (treated as local).
+		(It will treat the conf directory as global one )
+
+MAVEN Install:
+==============
+When we use this install command, it will create the package in the Maven Local Repo Directory according to the groupId name you have configured.
+
+		mvn install
+		
+	Eg: com.medplus
+	
+		It will Create the directory as /home/developer/.m2/com/medplus
+		
+		Folder name:	0.0.1-SNAPSHOT
+		File name:	optival-0.0.1-SNAPSHOT.jar
+					optival-0.0.1-SNAPSHOT.pom and etc..
+
+MAVEN DEPLOY:
+============
+When we use this command, it will store the result artifactId in the remote repositories.
+
+		The above created files & folder will be copied to the Remote Repo. (Nexus)
+
+
+
+Building the WEB Application Code:
+==================================
+git clone https://github.com/MithunTechnologiesDevOps/maven-web-application.git
+
+					mvn package
+
+	As per the previous lecture, we can say that the result package will be named like "maven-web-application-0.0.1-SNAPSHOT.war"
+	But it is created as	"maven-web-application.war" 
+
+	This is due to the configuration made in the pom.xml [ Using finalName tag ]
+
+	// Try with		mvn install
+
+
+Building an Enterprise Application Code:
+========================================
+git clone	https://github.com/MithunTechnologiesDevOps/maven-enterprise-application.git
+
+In this kind of Project, we have multiple pom.xml files, which we called as Parent & child pom.xml files.
+
+The Pom.xml which exists inside the module, it is known as child pom.xml 
+Which exists outside of the module (directly inside the project 1-level) it is called as Parent pom.xml
+
+						mvn package
+						
+		It will combine all the war files inside the diff modules, and then finally build a EAR file.
+		
+
+Q:	When there are multiple modules inside an enterprise application, Is it possible to build any specific module only ?
+A:		Yes
+
+				mvn clean package -pl <project-module1>,<project-module2>
+				
+				mvn clean package -pl MavenEnterprise-web
+				
+		Here: pl denotes as the Project List.
+				
+	The above is taken from the pom.xml file, which exists under the Modules tag.
+
+

@@ -1,0 +1,272 @@
+
+Java		=>	jar/war & ear files
+.Net		=>	.exe
+NodeJS		=>	No-specific file extension	(will build and save as .tar files)
+Python		=>	No-specific
+
+Sonar Cloud:
+============
+https://sonarcloud.io website name
+
+											NEXUS:
+											======
+It is an one of Artifactory Repository to save the build artifacts / packages / Docker images.
+	1. Sonatype  Nexus
+	2. JFrog Artifactory
+
+Nexus is an Open Source  Java Based Artifactory Repo manager.
+	
+		Nexus OSS	=>	Open Source Software
+		Nexus Pro	=>	Enterprise edition	
+
+Q.	Diff b/w GitHub & Nexus ?
+A.	Nexus is an Artifactory Repo manager used to store build artifacts / Packages where as GitHub is a Source Code Management.
+
+Installation:
+=============
+	Requires Java1.8 or Above
+
+Nexus version: 3.38
+Download the nexus file and extract it
+
+	cd /opt
+	mv nexus-3.38-1	nexus
+	ln -s /opt/nexus/bin/nexus	/etc/init.d/nexus
+	sudo systemctl enable nexus
+	sudo systemctl start nexus
+
+							http://localhost:8081		[http://192.168.1.50:8091]
+
+	Login Details:		admin & 
+	Password will be /opt/sonatype-work/nexus3/admin.password	
+	
+	Prior to version: 3.15.x ; Default password is: admin123
+		
+
+Enable anonymous user access.
+
+																	VIDEO 1 COMPLETED
+
+
+Nexus is the Package Repository.
+Github is the Source code repository.
+
+
+Maven Local Repo	=>	Nexus
+Maven Central Repo	=>	Public 
+Maven Remote Repo	=>	From the remote repository.	
+
+Create a new repo > test-remote-repo > type: mixed > Done
+
+Now whatever the jar's you are created [without any need of snapshots / releases or those should not uploaded into Nexus before ], here we can Upload them.
+
+To do so, Go to that Repo (remote repo -now created )
+
+	Browse > test-remote-repo > Upload component
+	
+	Group Id:		com.optival
+	Artifcat Id:	mithun
+	version:		1.2.3
+	
+	Done
+	
+		Then it will be uploaded and will give us the options (in differnet types) to use it in anonther Java Projects.
+		
+	Save it and copy it in anonther projects under dependency Tag.
+
+Till now, we haven't configure the Remote repository for our project.
+
+For this, we need to configure in 2 places.
+
+1. Maven settings.xml file under Mirror section.
+
+
+    <mirror>
+      <id>remote-nexus</id>
+      <mirrorOf>external:http:*</mirrorOf>
+      <name>Human Readable Name for this Mirror.</name>
+      <url>http://192.168.1.50:8091/repository/mixed-remote-repo/</url>
+    </mirror>
+
+
+	
+2. Project's pom.xml file - Under the repositories section and above the Dependencies Section. [ Create the section if not exists ] 
+
+<repositories>
+
+	<repository>
+	
+		<id>remote-nexus</id>
+		<name>MEDPLUS remote repository </name>
+		<url>http://192.168.1.50:8091/repository/mixed-remote-repo/</url>
+	
+	</repository>
+
+</repositories>															
+		
+									mvn clean deploy
+
+Till now, we covered the Topics of Maven Hosted Repo.
+
+Further, will cover the Topics on Proxy Repo, Group Repo & Nexus Admin Tasks.
+
+															VIDEO NO:2 COMPLETED
+													-------------------------------------------------
+Proxy Repo Configuration:
+-------------------------
+Create Repo > Maven2 (Proxy) > Name > Mixed > Central Repo url: (copy from the given example) > Done.
+
+	Here, we are skipping the authentication else we have to give the credentials, if the site has restriction.
+	
+
+Now change the previously configured remote repo url's in both settings.xml & pom.xml file and Update this URL in both the places.
+
+	Now build the project.					mvn clean package
+	
+Observations:
+--------------
+1. The project will 1st first find the jar files in the Maven Local Repo. [ Remove them and check ]
+2. Then it will look after the Proxy repo, in which there are no jars files available.
+3. Automatically it will fetch from the Central Repo to the Proxy Repo and then from Proxy repo to the server.
+	Finally the project will be build.
+	
+
+***** This is Useful when the project building server, doesnt have the internet connection / do not have access to the Maven Central Repo.
+
+Group Repo Configuration:
+------------------------
+Situation: Lets say you have the build some jar files independently (as we seen case earlier for Remote repo ).
+	In that situation, the jar files wont be available in 
+		1. Local Repo
+		2. Proxy Repo
+		3. Central Repo
+	It is only available in the remote repository.
+	
+	To achieve this multiple repo's from the proxy repository, we have to configure the Maven2 (Group) Repository.
+
+Create Repo > Maven2 (Group) > Name it > Mixed > "select the Remote repo" & "Central Repo / Proxy repo" > Create.
+
+Once the Repo is Created, 
+	1.	Update your Project's pom.xml - repository url with the Group Repository url.
+	2.	Update the Maven's settings.xml - mirror location url with the Group Repository url.
+	
+## Check this configuration, by removing some of the jar directories in the Maven local repo directory.
+
+
+NEXUS ADMIN TASKS:
+==================
+"Blob" is a database type to store the objects (images/files etc..)
+
+. Creation of Blob store.
+	Blob storage > Create > File > Name it.
+
+. Cleanup Policies are used to remove the content from the repositories.	
+	
+		After creating the cleanup policies, we have to assign that CleanUp policy with the repository.
+		Go to maven-test-releases repo > Cleanup policies > assign the newly created CleanUp policy > Save.
+
+. SECURITY:
+  --------
+	Users:
+	. Create local user > All the details > nexus-admin group / anonymous group > Create.
+
+	Roles:
+	. Select the neccesary privileges for a role.
+	. Assign that role to any of the user.
+	
+	Privileges;
+	. Rights
+	
+	LDAP Configuration.		
+	
+	Next part - Jenkins
+														=====================================
+																	NOTE POINTS
+														=====================================
+I. When you are building a Release artifactId, by default, it wont accept the upload of Same Release war version to the Nexus.
+	If you want to explictly allow the Release version of the same 
+														
+
+II. When you face the issue as Blocked mirror, http://0.0.0.0 blocked error's;
+	then update the Maven's settings xml file and change the Proxy section.
+
+		1. Add the Remote repository URL there.
+		2. Remove the Blocked true line there.
+		3. Add the name of the nexus id in the ID section
+		
+III. Proxy Repository is useful when the project building server, doesnt have the internet connection / do not have access to the Maven Central Repo.
+
+														=====================================
+																		PRACTICE:
+														=====================================
+wget https://download.sonatype.com/nexus/3/nexus-3.76.1-01-unix.tar.gz
+tar -xzf nexus-3.76.1-01-unix.tar.gz
+cd nexus-3.76.1-01
+vim etc/nexus-default.properties
+
+		#Changed the Port 8081 to 8091
+
+cd  nexus
+./nexus start
+
+			admin/Admin@123
+
+Create Repo.
+	Settings > Create > Maven2(Hosted)
+		Name: maven-test-snapshots / maven-test-releases
+		Release / Snapshot
+		Create Repo.
+		
+		
+			http://192.168.1.50:8091/repository/maven-test-snapshots/
+			http://192.168.1.50:8091/repository/maven-test-releases/
+
+	// Similarly create snapshot repository
+
+		Once you create the Repo's, there is an option to copy the Repo URL for each one.
+
+Nexus Repo URL (not the credentials) details will be saved in application pom.xml file  =>	under <distributionmanagement> tag
+
+Nexus Credentials Details will be stored in the settings.xml file.
+
+<settings>
+ <server>
+  <id>nexus</id>			//You can mention anyname here
+  <username>admin</username>
+  <password>Admin@123</password>
+ </server>
+</settings>
+
+Note: Whatever the name you are using in Settings.xml & application pom.xml file, both should be same.
+
+
+Proxy repo creation:
+--------------------
+Create repo > mixed-proxy-repo > Mixed > URL: https://repo1.maven.org/maven2/ > Create.
+
+		http://192.168.1.50:8091/repository/mixed-proxy-repo/
+
+
+Group repo Creation:
+--------------------
+Create repo > mixed-group-repo > Mixed > 
+	Select the "proxy repo" & "remote repo" names from the list and add them 
+		> Create.
+
+		http://192.168.1.50:8091/repository/mixed-group-repo/
+
+Note:: You have to allow them in the Apache maven settings.xml also
+
+
+
+Docker repo:
+------------
+Create repo > docker (hosted) > docker-snapshots >
+	Http port: 8092
+	Allow redeploy
+
+		http://192.168.1.50:8091/repository/docker-snapshots/
+
+
+
+

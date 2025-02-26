@@ -1,0 +1,272 @@
+In the AWS
+1. Create an EC2 instance of ubuntu 
+2. While creating Ec2 instance - 25gb of Storage
+3. Allow port 22, HTTP & HTTPS ==> Launch
+4. Create an Elastic IP. (The IP will be static , even if you stop / start the EC2 instance)
+5. Now Assign that Elastic IP to the instance you created.
+6. Once Assigned, connect to that VM and do installations.
+
+
+				https://github.com/N4si/DevSecOps-Project
+				
+					https://www.youtube.com/watch?v=g8X5AoqCJHc
+					
+					
+		In AWS, open the ports 22, 8080, 8081, 9000, 80, 443		in security group.
+
+############################################### DOCKER ###############################################
+Building a Docker image:
+========================
+
+1. sudo apt update -y
+2. sudo apt install docker.io -y
+3. sudo usermod -aG docker $USER
+4. newgrp docker
+5. sudo chmod 777 /var/run/docker.sock
+
+Clone the repository:
+
+	git clone https://github.com/N4si/DevSecOps-Project
+
+1. After cloning the repository, enter into the Project directory.
+2. Build a docker image
+
+	docker build -t netflix .
+	
+3. docker run -d -p 8081:80 netflix
+4. Now in the Security groups, check the port 8081 to be allowed.
+
+			http://<elastic-ip>:8081
+
+		
+	Go to TMDB portal, create an account.			satya954/S@tya954
+	After creating account, Go to settings option > API.
+	Create a new API Key > Copy it
+	
+Now again build the docker image, with the updated API key passing as an argument with the command below.
+
+			docker build - build-arg TMDB_V3_API_KEY=<copy-your-key-here> -t netflix  .
+			
+			
+	54ce64e5e33e9ee315f45738e31720ab
+			
+1. Stop the running docker container.
+			docker stop <container-id>
+
+2. Build the new docker image 
+
+3. Run the updated docker image
+	
+			docker run -d -p 8081:80 netflix
+			
+	After starting the container, now access the Site using the url below.
+
+				http://<elastic-ip>:8081
+
+############################################### SONARQUBE ###############################################
+Sonarqube [Code Quality Assurance tool] is for analyzing the code quality and gives you the report of your project.
+
+Now we are directly installing the sonarqube using the docker.
+
+		docker run -d -p 9000:9000 sonarqube:lts-community
+		
+					http://<elastic-ip>:9000
+
+	Default username/password: 	admin/admin
+	
+	Updated: admin/Admin@123
+
+Trivy:
+=====
+Trivy is used to scan the images and find the vulnerabilities & misconfigurations across code repositories.
+
+To install trivy:
+
+			sudo apt-get install wget apt-transport-https gnupg lsb-release
+			wget -qO - https://aquasecurity.github.io/trivy-repo/deb/public.key | sudo apt-key add -
+			echo deb https://aquasecurity.github.io/trivy-repo/deb $(lsb_release -sc) main | sudo tee -a /etc/apt/sources.list.d/trivy.list
+			sudo apt-get update
+			sudo apt-get install trivy        
+
+To scan the image
+		trivy image <image-id>
+
+To scan the file system.
+
+		trivy fs . (current directory)
+
+
+############################################### JENKINS ###############################################
+Jenkins installation:
+--------------------
+			sudo apt update
+			sudo apt install fontconfig openjdk-17-jre
+			java -version
+			openjdk version "17.0.8" 2023-07-18
+			OpenJDK Runtime Environment (build 17.0.8+7-Debian-1deb12u1)
+			OpenJDK 64-Bit Server VM (build 17.0.8+7-Debian-1deb12u1, mixed mode, sharing)
+			
+			#jenkins
+			sudo wget -O /usr/share/keyrings/jenkins-keyring.asc \
+			https://pkg.jenkins.io/debian-stable/jenkins.io-2023.key
+			echo deb [signed-by=/usr/share/keyrings/jenkins-keyring.asc] \
+			https://pkg.jenkins.io/debian-stable binary/ | sudo tee \
+			/etc/apt/sources.list.d/jenkins.list > /dev/null
+			sudo apt-get update
+			sudo apt-get install jenkins
+			sudo systemctl start jenkins
+			sudo systemctl enable jenkins
+
+
+				http://<elastic-ip>:8080
+
+	Password configured: admin/Admin@123
+
+
+Login & Install the Plugins recommended > Save & finish.
+
+Dashboard Screen > Manage plugins > Available Plugins >
+
+		Nodejs
+		Eclipse temurin installer
+		sonarqube scanner 				> Install
+		Email extension plugin
+		
+Dashboard Screen > Tools > 
+		Add JDK > Install Automatically > Install from adoptium.net > Select version "Jdk 17.0.8.1+1" > Name as "jdk17"
+		Add Nodejs > NodeJS 16.2.0 > name as "node16"
+
+	Apply and Save.
+
+
+############################################### SONARQUBE & JENKINS Configuration ###############################################
+Sonarqube Screen:
+-----------------
+Login to the Sonarqube Page > Administration > Security > Tokens Option
+
+			Create new Token > "jenkins" > Generate. (Copy the token)
+
+squ_be232f7e52cd422e21be3f17f3b2dd7efdd1ea32
+
+Jenkins Screen:
+---------------
+	Credentials > System > Global credentials > Add Credentials > Secret text.
+		
+		Secret : token (copied from sonar)
+		ID:	name as you wish (sonar-token)
+		Description: AS you wish
+	
+	Create.
+	
+Dashboard Screen / Manage Jenkins Screen.
+
+	System > Sonarqube Installations > Add Sonarqube > 
+	
+			Name: sonar-server
+			URL:
+			Token: sonar-token
+
+===> Done
+
+Create a Pipeline Job.
+
+Add tools for Sonarqube Scanner.
+
+Add plugins for OWASP Dependency check and Docker tool plugins.
+
+Add credentials for DockerHub 
+
+
+
+
+############################################### Monitoring  ###############################################
+. Prometheus installation & configuration.	[ 9090 ]
+
+. Node-exporter installation	[ 9100 ]
+
+. Adding Node-exporter in the Prometheus data.
+
+. Grafana Installation.	[ 3000 ]		Default: admin/admin
+
+	Grafana UI : 1860	
+
+	Add Prometheus Data Series into this.
+	
+
+======> Now We will jenkins node also into the Grafana UI. <=============
+
+. Jenkins Screen > Manage jenkins > Plugins > Available Plugins > "Prometheus Metrics" > Install.
+
+			Restart the Jenkins Server.
+			
+. Jenkins Screen > System > Prometheus > Apply & Save.
+
+. Now Add the Jenkins server details in the Prometheus yml file.
+
+		vim /etc/prometheus/prometheus.yml file.
+
+. After adding the content in the file, Restart the prometheus service.
+
+	
+	curl http://localhost:9090/~/reload
+	
+. Now go the Grafana and Select Dashboard ID: 9964 , Apply & Save.
+
+
+Enabling notifications:
+=======================
+To get the notification, we need a gmail.
+Gmail doesnt encourage you to save the direct username and passwords in the code. So, it has the Option in the GMAIL.
+
+
+				GMAIL > Manage Google account > Security > App Passwords > Create a New (APP NAME) > Done.
+				
+			Copy the password
+			
+	Manage jenkins > Credentials > Username and Password type > Email and password.
+	
+	Manage Jenkins > System > E-mail Notification >
+	
+			smtp server: smtp.gmail.com
+			email: satyarocks1996@gmail.com
+			
+		Use SMTP Authentication > 
+				Username: gmail, 
+				Password: Copied Previous
+				Use SSL
+				Port: 465
+				UTF-8
+		Test configuration by send email. (your email and check)
+		
+	
+	Extended E-mail notification:
+	=============================
+	smtp.gmail.com
+	465 
+	SSL 
+	Credentials > select previously configured.
+	Default content type: HTML
+	Notification: Always 
+	Save & Apply
+	
+		Add the notification related changes in the Pipeline.
+		
+	Manage Jenkins > Pipeline >  Configure > Update the pipeline > Apply
+	
+	
+######################################## KUBERNETES CLUSTER - EKS ######################################################
+Directly open AWS > EKS > Create cluster
+
+	Subnets
+	Public / Private
+	
+				Amazon EKS Cluster creation sample Video
+
+
+
+ArgoCD Installation.
+
+Configuration in ArgoCD.
+
+
+
