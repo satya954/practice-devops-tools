@@ -1,0 +1,41 @@
+node {
+    
+    buildName "kube-pipeline-#${BUILD_NUMBER}"
+    
+    def docker_registry = "192.168.1.50:8092"
+    
+    def docker_registry_url = "http://192.168.1.50:8092"
+    
+    def appname = ""
+    
+    def version = ""
+    
+    def mvnHome = tool name: 'Maven3.9.9', type: 'maven'
+    
+    stage('Code Checkout'){
+        checkout scmGit(branches: [[name: '*/master']], extensions: [], userRemoteConfigs: [[credentialsId: 'github', url: 'https://github.com/satya954/hello-world.git']])
+    }
+    stage('Maven Build'){
+        sh "${mvnHome}/bin/mvn clean install -s /opt/apache-maven-3.9.9/conf/settings.xml"
+    }
+    stage('Extract Application & Version') {
+        appname = sh(script: "grep finalName pom.xml | awk -F '[<>]' '{print \$3}'", returnStdout: true).trim()
+        version = sh(script: "grep -m1 '<version>' pom.xml | awk -F '[<>]' '{print \$3}'", returnStdout: true).trim()
+        echo "Extracted Application : ${appname} and Version: ${version}"
+    }
+    stage('Build Docker Image'){
+        sh "docker build -t ${docker_registry}/${appname}:${version} . -f Dockerfile"
+    }
+    stage('Docker Push'){
+        withDockerRegistry(credentialsId: 'docker-creds-50', url: "${docker_registry_url}") {
+        sh "docker push ${docker_registry}/${appname}:${version}"
+    }
+    }
+    stage('Deploy'){
+        script {
+	    sh "sed -i 's/0.0.1-SNAPSHOT/${version}/g' ansible/satya.yml"
+	    sh "sed -i 's/test-satya/${appname}/g' ansible/satya.yml"
+	}
+        sh 'export LC_ALL=C.UTF-8; cd ansible; ansible-playbook -i inventory.yaml deploy.yaml '
+    }
+}

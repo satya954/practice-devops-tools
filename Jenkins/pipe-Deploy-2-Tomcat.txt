@@ -1,0 +1,82 @@
+pipeline {
+    agent any
+    
+    parameters {
+        choice (name: 'ENVIRONMENT', choices: ['dev', 'staging', 'production'], description: 'Select your environment')
+    }
+    
+    tools {
+        maven "Maven3.9.9"
+    }
+    
+    environment {
+        SONARQUBE_URL='http://192.168.1.50:9090'
+        TOMCAT_IP='192.168.1.177'
+        TOMCAT_USERNAME='developer'
+        TOMCAT_PASSWORD='developer@123'
+        TOMCAT_PATH='/appserver/apache-tomcat-9.0.31'
+        BUILD_NAME = "Tomcat-Deploy-${env.BUILD_NUMBER}"
+        //Other option instead of parameter selection
+        //ENV = "${env.BRANCH_NAME == 'main' ? 'prod' : env.BRANCH_NAME == 'release' ? 'staging' : 'dev'}"
+    }
+
+    stages {
+        stage('Set Build Name') {
+            steps {
+                script {
+                    currentBuild.displayName = "${BUILD_NAME}"
+                    echo "Deploying to ${ENVIRONMENT} environment"
+                    //echo "DEPLOYING in ${ENV} ENVIRONMENT"
+                }
+            }
+        }
+        /*stage('Deploy') {
+            steps {
+                script {
+                    if (params.ENVIRONMENT == 'dev') {
+                        sh 'echo Deploying to DEV'
+                    } else if (params.ENVIRONMENT == 'staging') {
+                        sh 'echo Deploying to STAGING'
+                    } else {
+                        sh 'echo Deploying to PROD'
+                    }
+                }
+            }
+        }*/ //Commenting this. Selecting the Environment & based on the condition, what to do
+        stage('DeleteWorkingDir'){
+            steps{
+                echo "Deleting the workspace directory"
+                deleteDir()
+            }
+        }
+        
+        stage('Build') {
+            steps {
+                git 'https://github.com/satya954/mekafu-prime.git'
+                //checkout scmGit(branches: [[name: '*/${BRANCH_NAME}']], extensions: [], userRemoteConfigs: [[credentialsId: 'github', url: 'https://github.com/satya954/mekafu-prime.git']])
+                
+                sh "mvn clean package -DskipTests"
+            }
+        }   
+       stage('Sonarqube Analysis'){
+            steps{
+                withSonarQubeEnv('sonarqube-50') {
+                 sh "mvn sonar:sonar"
+                }
+            }
+        }
+        stage('Push to Nexus'){
+            steps{
+                sh "mvn clean deploy -s /opt/apache-maven-3.9.9/conf/settings.xml"
+            }
+        }
+        
+        stage('Deploy to Tomcat'){
+            steps{
+                sh "sshpass -p'${TOMCAT_PASSWORD}'  scp target/*.war ${TOMCAT_USERNAME}@${TOMCAT_IP}:${TOMCAT_PATH}/webapps/"
+            }
+        }
+        
+    }
+}
+

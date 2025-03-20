@@ -1,0 +1,20 @@
+#CodeCheckout
+Git >
+  https://github.com/satya954/kube-docker-test.git
+  <Select Credentials>
+  Branch:
+  */main
+
+#Set BuildName
+  docker-#${BUILD_NUMBER}
+
+#Build Steps
+
+docker build -t 80963/nginx:${BUILD_NUMBER} .
+#docker login -u 80963 -p <password-here>
+#docker push 80963/nginx:${BUILD_NUMBER}
+cname=$(echo `docker ps  | grep 91 | awk -F' ' '{print $1}'`)
+docker stop $cname
+docker rm $cname
+docker run -d -p 91:80 80963/nginx:${BUILD_NUMBER} 
+

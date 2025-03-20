@@ -1,0 +1,32 @@
+#Source Code Management
+Git:
+  Repo: https://github.com/satya954/hello-world.git
+  credentials: <select drop down>
+  Branch: */master
+
+
+#Environment
+. Delete workspace before build starts
+. Add timestamps to the console output
+. set Build Name
+   Valaxy_tech_#${BUILD_NUMBER}
+
+#Build
+Maven Version: <select drop down> (If there are multiple)
+Root POM: pom.xml
+Goals: clean install package
+
+#Post Steps
+. Run Regardles of build result
+
+#Option1:
+SSH Publisher:
+Name: Server-50	 (This needs to be configured in Manage Jenkins > Credentials > Global )
+Transfers:
+  source files: webapp/target/*.war	(war path)
+  Remote directory: //opt//playbooks    (/opt/playbooks)
+
+#Option2:
+Execute Shell:
+    export LC_ALL=C.UTF-8
+    ansible-playbook -i /opt/playbooks/inventory.yaml /opt/playbooks/copywarfile.yml

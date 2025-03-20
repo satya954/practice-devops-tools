@@ -1,0 +1,55 @@
+#Project Parameterized
+Name: BRANCH_NAME
+Choices:
+	facebook
+	whatspp
+	main
+
+#Pipeline code
+
+node('masternode') {
+    
+    try {
+        
+        buildName 'scripted-pipeline-#${BUILD_NUMBER}'
+        
+        def gitUrl = 'https://github.com/satya954/2025-mithun-tech-classes.git'  // Replace with your Git repository URL
+        
+        def mvnHome = tool name: 'Maven3.9.9', type: 'maven'
+        
+        stage('deletWorkspaceDir'){
+            echo 'Deleting the workspace directory'
+            deleteDir()
+        }
+        
+        stage('Checkout Code') {
+            echo 'Checking out code from Git...'
+
+            checkout([$class: 'GitSCM',
+                      branches: [[name: "*/${BRANCH_NAME}"]],
+                      userRemoteConfigs: [[credentialsId: 'github', url: gitUrl]]
+            ])
+        }
+
+        stage('Build') {
+            echo 'Building the project...'
+            sh "${mvnHome}/bin/mvn clean install -s /opt/apache-maven-3.9.9/conf/settings.xml"
+        }
+
+        stage('Test') {
+            echo 'Running tests...'
+            sh "${mvnHome}/bin/mvn sonar:sonar -s /opt/apache-maven-3.9.9/conf/settings.xml"
+        }
+        
+        stage('Deploy'){
+            echo "Uploading the code to Nexus"
+            sh "${mvnHome}/bin/mvn deploy -s /opt/apache-maven-3.9.9/conf/settings.xml"
+        }
+
+    } catch (e) {
+        // Handle any errors
+        echo "An error occurred: ${e}"
+        currentBuild.result = 'FAILURE'
+    }
+}
+

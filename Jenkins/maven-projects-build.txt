@@ -1,0 +1,34 @@
+#Discard Old Builds
+
+#Project parameterized
+Choice Parameter >
+  Name: BRANCH_NAME
+  Choices:
+  	facebook
+	whatspp
+ 	main
+  Description: Choose the Branch Name
+
+#Source Code Management
+Git >
+  Repo: https://github.com/satya954/2025-mithun-tech-classes.git
+  Credentials: <Select Drop down>
+Branches to Build:
+  */${BRANCH_NAME}
+
+
+#Environment
+. Delete Workspace before build starts
+. Add timestamps to the console output
+. Set BuildName
+    Mvn-Snapshot-#${BUILD_NUMBER}
+
+
+#Build
+ Maven Version: Maven3.9.8
+ Root POM: pom.xml
+ Goals: clean deploy
+
+
+#Post Steps
+. Run only if build succeeds.
