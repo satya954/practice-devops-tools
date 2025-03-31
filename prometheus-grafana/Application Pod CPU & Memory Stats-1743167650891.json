@@ -44,7 +44,7 @@
             "axisColorMode": "series",
             "axisLabel": "",
             "axisPlacement": "auto",
-            "barAlignment": 0,
+            "barAlignment": -1,
             "barWidthFactor": 0.6,
             "drawStyle": "line",
             "fillOpacity": 0,
@@ -56,7 +56,7 @@
             },
             "insertNulls": false,
             "lineInterpolation": "linear",
-            "lineWidth": 1,
+            "lineWidth": 2,
             "pointSize": 5,
             "scaleDistribution": {
               "type": "linear"
@@ -118,7 +118,7 @@
           "disableTextWrap": false,
           "editorMode": "code",
           "exemplar": false,
-          "expr": "sum(rate(container_memory_usage_bytes{namespace=\"$Namespace\", pod=~\"$Pod\"}[5m])) by (pod, namespace )  / 1024 / 1024",
+          "expr": "sum(rate(container_memory_usage_bytes{namespace=\"$Namespace\", pod=~\"$Pod\"}[5m])) by (pod, namespace ) / 1024 / 1024 / 1024",
           "fullMetaSearch": false,
           "includeNullMetadata": false,
           "legendFormat": "{{pod}}",
@@ -158,7 +158,7 @@
             },
             "insertNulls": false,
             "lineInterpolation": "linear",
-            "lineWidth": 1,
+            "lineWidth": 2,
             "pointSize": 5,
             "scaleDistribution": {
               "type": "linear"
@@ -265,8 +265,8 @@
       {
         "allValue": ".*",
         "current": {
-          "text": "All",
-          "value": "$__all"
+          "text": "labcatalog",
+          "value": "labcatalog"
         },
         "definition": "label_values(kube_deployment_created{namespace=\"$Namespace\"},deployment)",
         "includeAll": true,
@@ -284,8 +284,8 @@
       {
         "allValue": ".*",
         "current": {
-          "text": "asset-service-6b4b4c6f46-jpfjc",
-          "value": "asset-service-6b4b4c6f46-jpfjc"
+          "text": "labcatalog-794b9c45-j6rlv",
+          "value": "labcatalog-794b9c45-j6rlv"
         },
         "definition": "label_values(kube_pod_owner{namespace=\"$Namespace\", owner_name=~\"$Application\"},pod)",
         "includeAll": true,
@@ -303,13 +303,13 @@
     ]
   },
   "time": {
-    "from": "now-6h",
+    "from": "now-24h",
     "to": "now"
   },
   "timepicker": {},
   "timezone": "browser",
   "title": "Application Pod CPU & Memory Stats",
   "uid": "degzyria180zke",
-  "version": 56,
+  "version": 60,
   "weekStart": ""
 }
